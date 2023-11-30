@@ -1,15 +1,11 @@
 #!/usr/bin/env bash
-# This script displays information about subdomains of a given domain
-
-# Function to print domain record information
-print_domain_record() {
-    local record_and_ip
-    record_and_ip=$(dig "$2"."$1" +short | tail -1)
-    echo "The subdomain $2 is a $(dig "$2"."$1" +short | awk '{print $1}') record and points to $record_and_ip"
+# Output: The subdomain [SUB_DOMAIN] is a [RECORD_TYPE] record and points to [DESTINATION]
+print_domain_record () {
+    record_and_ip=$(dig "$2"."$1" | grep -A1 'ANSWER SECTION:' | tail -1 | awk '{print $4, $NF}')
+    echo "$2" $record_and_ip | awk '{print "The subdomain " $1 " is a " $2 " record and points to " $3}'
 }
 
-# Main script
-if [[ "$#" == 2 ]]; then
+if [ "$#" == 2 ]; then
     print_domain_record "$1" "$2"
 else
     for sub in "www" "lb-01" "web-01" "web-02"; do
